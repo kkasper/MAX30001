@@ -1,13 +1,12 @@
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-//    Demo code for the MAX30003 breakout board
+//    BioZ Demo code for the MAX30001
 //
-//    This example plots the ECG through Arduino Plotter.
-//    GUI URL: https://github.com/Protocentral/protocentral_openview.git
+//    This example plots the BioZ through Arduino Plotter.
 //
 //    Arduino connections:
 //
-//  |MAX30003 pin label| Pin Function         |Arduino Connection|
+//  |MAX30001 pin label| Pin Function         |Arduino Connection|
 //  |----------------- |:--------------------:|-----------------:|
 //  | MISO             | Slave Out            |  D12             |
 //  | MOSI             | Slave In             |  D11             |
@@ -27,48 +26,47 @@
 //   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 //   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//   For information on how to use, visit https://github.com/Protocentral/protocentral_max30003
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
 #include<SPI.h>
-#include "protocentral_Max30003.h"
+#include "Max30001.h"
 
-MAX30003 max30003;
+MAX30001 max30001;
 
 
 void setup()
 {
-    Serial.begin(57600); //Serial begin
+    Serial.begin(57600); // Serial begin
 
-    pinMode(MAX30003_CS_PIN,OUTPUT);
-    digitalWrite(MAX30003_CS_PIN,HIGH); //disable device
+    pinMode(MAX30001_CS_PIN,OUTPUT);
+    digitalWrite(MAX30001_CS_PIN,HIGH); // disable device
 
     SPI.begin();
     SPI.setBitOrder(MSBFIRST);
     SPI.setDataMode(SPI_MODE0);
 
-    bool ret = max30003.max30003ReadInfo();
+    bool ret = max30001.max30001ReadInfo();
     if(ret){
-      Serial.println("Max30003 read ID Success");
+      Serial.println("Max30001 read ID Success");
     }else{
 
       while(!ret){
-        //stay here untill the issue is fixed.
-        ret = max30003.max30003ReadInfo();
+        // Stay here until the issue is fixed.
+        ret = max30001.max30001ReadInfo();
         Serial.println("Failed to read ID, please make sure all the pins are connected");
         delay(10000);
       }
     }
 
     Serial.println("Initialising the chip ...");
-    max30003.max30003Begin();   // initialize MAX30003
+    max30001.max30001Begin();   // Initialize MAX30001
 }
 
 void loop()
 {
-    max30003.getEcgSamples();   //It reads the ecg sample and stores it to max30003.ecgdata .
+    max30001.getBioZSamples();   // It reads the ecg sample and stores it to max30001.biozdata.
 
-    Serial.println(max30003.ecgdata);
+    Serial.println(max30001.biozdata);
     delay(8));
 }

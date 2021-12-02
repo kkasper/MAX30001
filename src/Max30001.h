@@ -39,11 +39,40 @@
 #define   CNFG_CAL        0x12
 #define   CNFG_EMUX       0x14
 #define   CNFG_ECG        0x15
+#define   CNFG_BMUX       0x17
+#define   CNFG_BIOZ       0x18
+#define   CNFG_PACE       0x1A
 #define   CNFG_RTOR1      0x1D
 #define   CNFG_RTOR2      0x1E
 #define   ECG_FIFO_BURST  0x20
 #define   ECG_FIFO        0x21
+#define   BIOZ_FIFO_BURST 0x22
+#define   BIOZ_FIFO       0x23
 #define   RTOR            0x25
+#define   PACE0_BURST     0x30
+#define   PACE0_A         0x31
+#define   PACE0_B         0x32
+#define   PACE0_C         0x33
+#define   PACE1_BURST     0x34
+#define   PACE1_A         0x35
+#define   PACE1_B         0x36
+#define   PACE1_C         0x37
+#define   PACE2_BURST     0x38
+#define   PACE2_A         0x39
+#define   PACE2_B         0x3A
+#define   PACE2_C         0x3B
+#define   PACE3_BURST     0x3C
+#define   PACE3_A         0x3D
+#define   PACE3_B         0x3E
+#define   PACE3_C         0x3F
+#define   PACE4_BURST     0x40
+#define   PACE4_A         0x41
+#define   PACE4_B         0x42
+#define   PACE4_C         0x43
+#define   PACE5_BURST     0x44
+#define   PACE5_A         0x45
+#define   PACE5_B         0x46
+#define   PACE5_C         0x47
 #define   NO_OP           0x7F
 
 #define MAX30001_CS_PIN   7
@@ -63,12 +92,14 @@ class MAX30001
   	unsigned int heartRate;
   	unsigned int RRinterval;
   	signed long ecgdata;
+    signed long biozdata;
 
     void max30001Begin();
     void max30001BeginRtorMode();
     void max30001SwReset(void);
     void getHRandRR(void);
     void getEcgSamples(void);
+    void getBioZSamples(void);
     bool max30001ReadInfo(void);
     void max30001SetsamplingRate(uint16_t samplingRate);
     void max30001RegRead(uint8_t Reg_address, uint8_t * buff);

@@ -1,6 +1,7 @@
 # MAX30001 Complete biopotential and bioimpedence AFE
+#### This code has been adapted under fair use from the MAX30003 Breakout Board library by [Protocentral](https://protocentral.com/). For original code, [see their Git repo](https://github.com/Protocentral/protocentral_max30003).
 
-![MAX30001 Complete biopotential and bioimpedence AFE](assets/max30001chip.png)
+![MAX30001 Complete biopotential and bioimpedence AFE](assets/max30001developmentkit.png)
 
 General Description taken from the [MAX30001 Datasheet](https://datasheets.maximintegrated.com/en/ds/MAX30001.pdf).
 
@@ -14,18 +15,18 @@ The biopotential and bioimpedance channels have ESD protection, EMI filtering, i
 
 # Wiring the chip to your Arduino
 
-|MAX30001 pin label  | MAX30001 pin label | Arduino Connection  | Pin Function      |
-|------------------ :|-----------------  :|------------------- :|----------------- :|
-| SDO         		 | E03     		      | D12                 |  Slave out 	    |             
-| SDI    		     | E04     			  | D11                 |  Slave in         |
-| SCK      		     | E05   		      | D13                 |  Serial clock     |
-| CSB    		     | E06      		  | D7                  |  Slave select	    |
-| FCLK     		  	 | D05    			  | NC                  |  External clock(32KHz) |
-| INT1      		 | D02    		      | D2                  |  Interrupt        |
-| INT2       		 | E02       		  | NC                  |  Interrupt        |
-| OVDD, DVDD, AVDD   | D03, D06, E01      | Supply 3V3     		|  Board which supports 3.3V and 1.8V |
-| OVDD, DVDD, AVDD   | D03, D06, E01      | Supply 5V       	|  5V               |
-| AGND, DGND    	 | B02, B04, C03, C04, D04, C05 | Gnd 		|  Ground		    |
+| MAX30001 pin label | MAX30001 pin number | Arduino Connection | Pin Function |
+| :---------------- | :---------------: | :---------------: | :---------------: |
+| SDO         		 | E03              | D12               |  Slave out        |             
+| SDI    		     | E04              | D11               |  Slave in         |
+| SCK      		     | E05              | D13               |  Serial clock     |
+| CSB    		     | E06              | D07               |  Slave select |
+| FCLK     		  	 | D05              | --                |  External clock (32KHz) |
+| INT1      		 | D02              | D02               |  Interrupt        |
+| INT2       		 | E02              | --                |  Interrupt        |
+| OVDD, DVDD, AVDD   | D03, D06, E01    | Supply 3V3        |  Board which supports 3.3V and 1.8V |
+| OVDD, DVDD, AVDD   | D03, D06, E01    | Supply 5V         |  5V               |
+| AGND, DGND    	 | B02, B04, C03, C04, D04, C05 | Gnd   |  Ground           |
 
 
 # Running the Arduino Sketch

@@ -2,8 +2,7 @@
 //
 //    Demo code for the MAX30001
 //
-//    This example displays heart rate and rr interval through arduino serial port.
-//
+//    This example plots the ECG through Arduino Plotter.
 //
 //    Arduino connections:
 //
@@ -33,27 +32,12 @@
 #include<SPI.h>
 #include "Max30001.h"
 
-#define INT_PIN 02
-
 MAX30001 max30001;
-bool rtorIntrFlag = false;
-uint8_t statusReg[3];
 
-
-void rtorInterruptHndlr(){
-  rtorIntrFlag = true;
-}
-
-
-void enableInterruptPin(){
-
-  pinMode(INT_PIN, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(INT_PIN), rtorInterruptHndlr, CHANGE);
-}
 
 void setup()
 {
-    Serial.begin(115200); //Serial begin
+    Serial.begin(57600); //Serial begin
 
     pinMode(MAX30001_CS_PIN,OUTPUT);
     digitalWrite(MAX30001_CS_PIN,HIGH); //disable device
@@ -64,37 +48,25 @@ void setup()
 
     bool ret = max30001.max30001ReadInfo();
     if(ret){
-      Serial.println("Max30001 ID Success");
+      Serial.println("Max30001 read ID Success");
     }else{
 
       while(!ret){
         //stay here untill the issue is fixed.
         ret = max30001.max30001ReadInfo();
         Serial.println("Failed to read ID, please make sure all the pins are connected");
-        delay(5000);
+        delay(10000);
       }
     }
 
     Serial.println("Initialising the chip ...");
-    max30001.max30001BeginRtorMode();   // initialize MAX30001
-    enableInterruptPin();
-    max30001.max30001RegRead(STATUS, statusReg);
+    max30001.max30001Begin();   // initialize MAX30001
 }
 
 void loop()
 {
-    if(rtorIntrFlag){
-      rtorIntrFlag = false;
-      max30001.max30001RegRead(STATUS, statusReg);
+    max30001.getEcgSamples();   //It reads the ecg sample and stores it to max30001.ecgdata .
 
-      if(statusReg[1] & RTOR_INTR_MASK){
-
-        max30001.getHRandRR();   //It will store HR to max30001.heartRate and rr to max30001.RRinterval.
-        Serial.print("Heart Rate  = ");
-        Serial.println(max30001.heartRate);
-
-        Serial.print("RR interval  = ");
-        Serial.println(max30001.RRinterval);
-      }
-    }
+    Serial.println(max30001.ecgdata);
+    delay(8));
 }

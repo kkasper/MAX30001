@@ -232,3 +232,21 @@ void MAX30001::getHRandRR(void)
     unsigned int RR = (unsigned int)rtor* (7.8125) ;  //8ms
     RRinterval = RR;
 }
+
+
+void MAX30001::getBioZSamples(void)
+{
+    uint8_t regReadBuff[4];
+    max30001RegRead(BIOZ_FIFO, regReadBuff);
+
+    unsigned long data0 = (unsigned long) (regReadBuff[0]);
+    data0 = data0 << 24;
+    unsigned long data1 = (unsigned long) (regReadBuff[1]);
+    data1 = data1 << 16;
+    unsigned long data2 = (unsigned long) (regReadBuff[2]);
+    data2 = data2 >> 4;
+    data2 = data2 & 0x0F;
+
+    unsigned long data = (unsigned long) (data0 | data1 | data2);
+    biozdata = (signed long) (data);
+}
