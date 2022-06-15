@@ -2,15 +2,15 @@
 //
 //    Demo code for the MAX30001
 //
-//    This example displays heart rate and rr interval through arduino serial port.
-//
+//    This example utilizes an interrupt to collect heart rate and rr interval data.
+//    Recordings are transmitted out through the Arduino serial port.
 //
 //    Arduino connections:
 //
 //  |MAX30001 pin label| Pin Function         |Arduino Connection|
 //  |----------------- |:--------------------:|-----------------:|
-//  | MISO             | Slave Out            |  D12             |
-//  | MOSI             | Slave In             |  D11             |
+//  | POCI             | Peripheral Out       |  D12             |
+//  | PICO             | Peripheral In        |  D11             |
 //  | SCLK             | Serial Clock         |  D13             |
 //  | CS               | Chip Select          |  D7              |
 //  | VCC              | Digital VDD          |  +5V             |
@@ -35,66 +35,63 @@
 
 #define INT_PIN 02
 
-MAX30001 max30001;
+MAX30001 myMAXChip;
+
+
 bool rtorIntrFlag = false;
 uint8_t statusReg[3];
-
 
 void rtorInterruptHndlr(){
   rtorIntrFlag = true;
 }
 
-
 void enableInterruptPin(){
-
   pinMode(INT_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(INT_PIN), rtorInterruptHndlr, CHANGE);
 }
 
 void setup()
 {
-    Serial.begin(115200); //Serial begin
-
-    pinMode(MAX30001_CS_PIN,OUTPUT);
-    digitalWrite(MAX30001_CS_PIN,HIGH); //disable device
+    Serial.begin(115200);
+    pinMode(MAX30001_CS_PIN, OUTPUT);
+    digitalWrite(MAX30001_CS_PIN, HIGH); // Disable SPI communication
 
     SPI.begin();
-    SPI.setBitOrder(MSBFIRST);
+    SPI.setBitOrder(MSBFIRST);          // See datasheet for SPI communication settings
     SPI.setDataMode(SPI_MODE0);
 
-    bool ret = max30001.max30001ReadInfo();
-    if(ret){
+    bool ret = myMAXChip.max30001ReadInfo();
+    if(ret == true){
       Serial.println("Max30001 ID Success");
-    }else{
-
-      while(!ret){
-        //stay here untill the issue is fixed.
-        ret = max30001.max30001ReadInfo();
-        Serial.println("Failed to read ID, please make sure all the pins are connected");
-        delay(5000);
+    }
+    else{
+      while(ret == false){
+        // Stay here until the issue is fixed.
+        ret = myMAXChip.max30001ReadInfo();
+        Serial.println("Failed to read ID, please make sure all the pins are properly connected.");
+        delay(10000);
       }
     }
 
-    Serial.println("Initialising the chip ...");
-    max30001.max30001BeginRtorMode();   // initialize MAX30001
-    enableInterruptPin();
-    max30001.max30001RegRead(STATUS, statusReg);
+    Serial.println("Running initialization...");
+    myMAXChip.max30001BeginRtoRMode();
+    enableInterruptPin();                       // Enable Arduino interrupt
+    myMAXChip.max30001RegRead(STATUS, statusReg);
 }
 
 void loop()
 {
     if(rtorIntrFlag){
       rtorIntrFlag = false;
-      max30001.max30001RegRead(STATUS, statusReg);
+      myMAXChip.max30001RegRead(STATUS, statusReg);
 
       if(statusReg[1] & RTOR_INTR_MASK){
+        myMAXChip.getHRandRR();   // Store HR to myMAXChip.heartRate and rr to myMAXChip.RRinterval.
+        Serial.print("Heart Rate: ");
+        Serial.println(myMAXChip.heartRate);
 
-        max30001.getHRandRR();   //It will store HR to max30001.heartRate and rr to max30001.RRinterval.
-        Serial.print("Heart Rate  = ");
-        Serial.println(max30001.heartRate);
-
-        Serial.print("RR interval  = ");
-        Serial.println(max30001.RRinterval);
+        Serial.print("RR interval: ");
+        Serial.println(myMAXChip.RRinterval);
       }
     }
 }

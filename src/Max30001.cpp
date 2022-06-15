@@ -6,8 +6,8 @@
 //
 //  |MAX30001 pin label| Pin Function         |Arduino Connection|
 //  |----------------- |:--------------------:|-----------------:|
-//  | MISO             | Slave Out            |  D12             |
-//  | MOSI             | Slave In             |  D11             |
+//  | POCI             | Peripheral Out       |  D12             |
+//  | PICO             | Peripheral In        |  D11             |
 //  | SCLK             | Serial Clock         |  D13             |
 //  | CS               | Chip Select          |  D07             |
 //  | VCC              | Digital VDD          |  +5V             |
@@ -24,14 +24,13 @@
 //  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 //  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//  For information on how to use, visit https://github.com/Protocentral/protocentral-max30001-arduino
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
 #include <SPI.h>
 #include "Max30001.h"
 
-void MAX30001::max30001RegWrite (unsigned char WRITE_ADDRESS, unsigned long data)
+void MAX30001::max30001RegWrite(unsigned char WRITE_ADDRESS, unsigned long data)
 {
     // now combine the register address and the command into one byte:
     byte dataToSend = (WRITE_ADDRESS << 1) | WREG;
@@ -60,6 +59,10 @@ void MAX30001::max30001SwReset(void)
 void MAX30001::max30001Synch(void)
 {
     max30001RegWrite(SYNCH, 0x000000);
+}
+
+void MAX30001::max30001FIFO_Rst(void) {
+    max30001RegWrite(FIFO_RST, 0x000000);
 }
 
 void MAX30001::max30001RegRead(uint8_t Reg_address, uint8_t * buff)
@@ -98,14 +101,13 @@ bool MAX30001::max30001ReadInfo(void)
 
     if((readBuff[0] & 0xF0) == 0x50 ){
 
-      Serial.println("max30001 is ready");
+      Serial.println("Max30001 is ready.");
       Serial.print("Rev ID:  ");
       Serial.println((readBuff[0] & 0xF0));
 
       return true;
     }else{
-
-      Serial.println("max30001 read info error\n");
+      Serial.println("Max30001 read info error.\n");
       return false;
     }
 
@@ -118,7 +120,7 @@ void MAX30001::max30001ReadData(int num_samples, uint8_t * readBuffer)
     digitalWrite(MAX30001_CS_PIN, LOW);
 
     spiTxBuff = (ECG_FIFO_BURST << 1 ) | RREG;
-    SPI.transfer(spiTxBuff);                  //Send register location
+    SPI.transfer(spiTxBuff);                  // Send register location
 
     for ( int i = 0; i < num_samples*3; ++i)
     {
@@ -134,7 +136,7 @@ void MAX30001::max30001Begin()
     delay(100);
     max30001RegWrite(CNFG_GEN, 0x081007);
     delay(100);
-    max30001RegWrite(CNFG_CAL, 0x720000);     // 0x700000
+    max30001RegWrite(CNFG_CAL, 0x720000);
     delay(100);
     max30001RegWrite(CNFG_EMUX,0x0B0000);
     delay(100);
@@ -146,7 +148,7 @@ void MAX30001::max30001Begin()
     delay(100);
 }
 
-void MAX30001::max30001BeginRtorMode()
+void MAX30001::max30001BeginRtoRMode()
 {
     max30001SwReset();
     delay(100);
@@ -167,7 +169,7 @@ void MAX30001::max30001BeginRtorMode()
 }
 
 //not tested
-void MAX30001::max30001SetsamplingRate(uint16_t samplingRate)
+void MAX30001::max30001SetSamplingRate(uint16_t samplingRate)
 {
     uint8_t regBuff[4] = {0};
     max30001RegRead(CNFG_ECG, regBuff);
@@ -186,35 +188,41 @@ void MAX30001::max30001SetsamplingRate(uint16_t samplingRate)
             break;
 
         default :
-            Serial.println("Wrong samplingRate, please choose between 128, 256 or 512");
+            Serial.println("Invalid sampling rate, please choose between {128, 256, 512}.");
             break;
     }
 
     unsigned long cnfgEcg;
     memcpy(&cnfgEcg, regBuff, 4);
 
-    Serial.print(" cnfg ECG ");
+    Serial.print("cnfg ECG ");
     Serial.println((cnfgEcg));
     max30001RegWrite(CNFG_ECG, (cnfgEcg >> 8));
 }
 
-void  MAX30001::getEcgSamples(void)
+uint8_t max30001GetEcgGain(void)
 {
     uint8_t regReadBuff[4];
-    max30001RegRead(ECG_FIFO, regReadBuff);
+    uint8_t ecg_gains = {20, 40, 80, 160};
+    uint8_t gain_idx = 0;
 
-    unsigned long data0 = (unsigned long) (regReadBuff[0]);
-    data0 = data0 << 24;
-    unsigned long data1 = (unsigned long) (regReadBuff[1]);
-    data1 = data1 << 16;
-    unsigned long data2 = (unsigned long) (regReadBuff[2]);
-    data2 = data2 >> 6;
-    data2 = data2 & 0x03;
+    max30001RegRead(CNFG_ECG, regReadBuff);
+    gain_idx = regReadBuff[0] & 0x03;
 
-    unsigned long data = (unsigned long) (data0 | data1 | data2);
-    ecgdata = (signed long) (data);
+    return ecg_gains(gain_idx);
 }
 
+uint8_t max30001GetBioZGain(void);
+{
+    uint8_t regReadBuff[4];
+    uint8_t bioz_gains = {10, 20, 40, 80};
+    uint8_t gain_idx = 0;
+
+    max30001RegRead(CNFG_BIOZ, regReadBuff);
+    gain_idx = regReadBuff[0] & 0x03;
+
+    return bioz_gains(gain_idx);
+}
 
 void MAX30001::getHRandRR(void)
 {
@@ -233,20 +241,47 @@ void MAX30001::getHRandRR(void)
     RRinterval = RR;
 }
 
+void  MAX30001::getEcgSample(void)
+{
+    signed long ecg_reading;
+    uint8_t regReadBuff[4];
+    max30001RegRead(ECG_FIFO, regReadBuff);
 
-void MAX30001::getBioZSamples(void)
+    unsigned long data0 = (unsigned long) (regReadBuff[0]);
+    data0 = data0 << 16;
+    unsigned long data1 = (unsigned long) (regReadBuff[1]);
+    data1 = data1 << 8;
+    unsigned long data2 = (unsigned long) (regReadBuff[2]);
+    data2 = data2 & 0xC0;                                   // Extract ECG_FIFO[7:6]
+    unsigned long data = (unsigned long) (data0 | data1 | data2);
+    ecgData.value = (signed long) ( data >> 6);             // ECG ADC data is ECG_FIFO[23:6]
+
+    ecgData.e_tag = (regReadBuff[2] & 0x38) >> 3;           // Align ETAG[2:0] to 8-bit val. 0b00XXX000 -> 0b00000XXX
+    ecgData.p_tag = regReadBuff[2] & 0x07;                  // PTAG[2:0] is already aligned. 0b00000XXX
+
+    if(ecgData.e_tag & 0x7){                                // FIFO Overflow Exception: ETAG[2:0] = 111, send RST
+        max30001FIFO_Rst();
+    }
+}
+
+void MAX30001::getBioZSample(void)
 {
     uint8_t regReadBuff[4];
     max30001RegRead(BIOZ_FIFO, regReadBuff);
 
     unsigned long data0 = (unsigned long) (regReadBuff[0]);
-    data0 = data0 << 24;
+    data0 = data0 << 16;
     unsigned long data1 = (unsigned long) (regReadBuff[1]);
-    data1 = data1 << 16;
+    data1 = data1 << 8;
     unsigned long data2 = (unsigned long) (regReadBuff[2]);
-    data2 = data2 >> 4;
-    data2 = data2 & 0x0F;
-
+    data2 = data2 & 0xF0;                                   // Extract BIOZ_FIFO[7:4]
     unsigned long data = (unsigned long) (data0 | data1 | data2);
-    biozdata = (signed long) (data);
+    biozData.value = (signed long) (data >> 4);             // BioZ ADC data is BIOZ_FIFO[23:4]
+
+    biozData.b_tag = regReadBuff[2] & 0x07;                 // BTAG[2:0] is BIOZ_FIFO[2:0]
 }
+
+
+
+
+

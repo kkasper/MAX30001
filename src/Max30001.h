@@ -12,7 +12,6 @@
 //  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 //  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//  For information on how to use, visit https://github.com/Protocentral/protocentral-max30001-arduino
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -84,32 +83,48 @@ typedef enum
   SAMPLINGRATE_128 = 128, 
   SAMPLINGRATE_256 = 256, 
   SAMPLINGRATE_512 = 512
-}sampRate;
+} sampRate;
+
+
+
+typedef struct
+{
+    signed long value;
+    uint8_t e_tag;
+    uint8_t p_tag;
+} struct ecg_data;
+
+typedef struct
+{
+    signed long value;
+    uint8_t b_tag;
+} struct bioz_data;
 
 class MAX30001
 {
   public:
   	unsigned int heartRate;
   	unsigned int RRinterval;
-  	signed long ecgdata;
-    signed long biozdata;
+    struct ecg_data ecgData;
+    struct bioz_data biozData;
 
     void max30001Begin();
-    void max30001BeginRtorMode();
+    void max30001BeginRtoRMode();
     void max30001SwReset(void);
     void getHRandRR(void);
-    void getEcgSamples(void);
-    void getBioZSamples(void);
+    void getEcgSample(void);
+    void getBioZSample(void);
     bool max30001ReadInfo(void);
-    void max30001SetsamplingRate(uint16_t samplingRate);
+    void max30001SetSamplingRate(uint16_t samplingRate);
     void max30001RegRead(uint8_t Reg_address, uint8_t * buff);
+    void max30001RegWrite (unsigned char WRITE_ADDRESS, unsigned long data);
+    uint8_t max30001GetEcgGain(void);
+    uint8_t max30001GetBioZGain(void);
 
   private:
-
     void max30001ReadData(int num_samples, uint8_t * readBuffer);
-
     void max30001Synch(void);
-    void max30001RegWrite (unsigned char WRITE_ADDRESS, unsigned long data);
+    void max30001FIFO_Rst(void);
 };
 
 #endif

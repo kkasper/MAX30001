@@ -17,10 +17,10 @@ The biopotential and bioimpedance channels have ESD protection, EMI filtering, i
 
 | MAX30001 pin label | MAX30001 pin number | Arduino Connection | Pin Function |
 | :---------------- | :---------------: | :---------------: | :---------------: |
-| SDO         		 | E03              | D12               |  Slave out        |             
-| SDI    		     | E04              | D11               |  Slave in         |
-| SCK      		     | E05              | D13               |  Serial clock     |
-| CSB    		     | E06              | D07               |  Slave select |
+| POCI/SDO     		 | E03              | D12               |  Peripheral out        |             
+| PICO/SDI		     | E04              | D11               |  Peripheral in         |
+| SCLK     		     | E05              | D13               |  Serial clock     |
+| CSB    		     | E06              | D07               |  Chip select |
 | FCLK     		  	 | D05              | --                |  External clock (32KHz) |
 | INT1      		 | D02              | D02               |  Interrupt        |
 | INT2       		 | E02              | --                |  Interrupt        |
@@ -29,16 +29,16 @@ The biopotential and bioimpedance channels have ESD protection, EMI filtering, i
 | AGND, DGND    	 | B02, B04, C03, C04, D04, C05 | Gnd   |  Ground           |
 
 
-# Running the Arduino Sketch
+# Running the Arduino Sketches
 
-If you have correctly installed the libraries, the example sketeches should now be available from within Arduino.
+If you have correctly installed the libraries, the example sketches should now be available from within Arduino.
 
-[Download the Arduino Sketch here for this board here.](https://github.com/kkasper/max30001/releases/download/v0.1/max30001_arduino.zip)
+[Download the latest Arduino library release (v1.1.0) for this chip here.](https://github.com/kkasper/MAX30001/releases/download/v1.1.0/max30001_arduino.zip)
 
-Open up your Arduino IDE and run the Arudino sketch (.ino) file in the archive that you downloaded. Your Arduino should now be programmed to read the ecg data and sending over the USB-UART.  
+Open up your Arduino IDE and run any Arduino sketch (.ino) file in the examples that you downloaded. Your Arduino should now be programmed to send data over  USB-UART. Default baud rate is 115200.
 
 *Warning:
-When connecting the electodes to the body, it is safer to disconnect the mains power source to the Arduino. For example, if you are using the Arduino along with a laptop, disconnecting the battery charger from the laptop would be a safe option.*
+When connecting electrodes to the body, it is advised to disconnect any mains power source from the Arduino. For example, if you are using an Arduino powered through a laptop, disconnecting the laptop from any charger or wall outlet would be a safer option.*
 
 
 License Information
@@ -46,7 +46,7 @@ License Information
 
 ![License](license_mark.svg)
 
-This product is open source! Both, our hardware and software are open source and licensed under the following licenses:
+This product is open source! Software is open source and licensed under the following licenses:
 
 
 Software
