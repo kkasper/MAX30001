@@ -6,8 +6,8 @@
 //
 //  |MAX30001 pin label| Pin Function         |Arduino Connection|
 //  |----------------- |:--------------------:|-----------------:|
-//  | MISO             | Slave Out            |  D12             |
-//  | MOSI             | Slave In             |  D11             |
+//  | POCI             | Peripheral Out       |  D12             |
+//  | PICO             | Peripheral In        |  D11             |
 //  | SCLK             | Serial Clock         |  D13             |
 //  | CS               | Chip Select          |  D07             |
 //  | VCC              | Digital VDD          |  +5V             |
@@ -24,14 +24,13 @@
 //  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 //  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//  For information on how to use, visit https://github.com/Protocentral/protocentral-max30001-arduino
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
 #include <SPI.h>
 #include "Max30001.h"
 
-void MAX30001::max30001RegWrite (unsigned char WRITE_ADDRESS, unsigned long data)
+void MAX30001::max30001RegWrite(unsigned char WRITE_ADDRESS, unsigned long data)
 {
     // now combine the register address and the command into one byte:
     byte dataToSend = (WRITE_ADDRESS << 1) | WREG;
@@ -98,14 +97,13 @@ bool MAX30001::max30001ReadInfo(void)
 
     if((readBuff[0] & 0xF0) == 0x50 ){
 
-      Serial.println("max30001 is ready");
+      Serial.println("Max30001 is ready.");
       Serial.print("Rev ID:  ");
       Serial.println((readBuff[0] & 0xF0));
 
       return true;
     }else{
-
-      Serial.println("max30001 read info error\n");
+      Serial.println("Max30001 read info error.\n");
       return false;
     }
 
@@ -118,7 +116,7 @@ void MAX30001::max30001ReadData(int num_samples, uint8_t * readBuffer)
     digitalWrite(MAX30001_CS_PIN, LOW);
 
     spiTxBuff = (ECG_FIFO_BURST << 1 ) | RREG;
-    SPI.transfer(spiTxBuff);                  //Send register location
+    SPI.transfer(spiTxBuff);                  // Send register location
 
     for ( int i = 0; i < num_samples*3; ++i)
     {
@@ -134,7 +132,7 @@ void MAX30001::max30001Begin()
     delay(100);
     max30001RegWrite(CNFG_GEN, 0x081007);
     delay(100);
-    max30001RegWrite(CNFG_CAL, 0x720000);     // 0x700000
+    max30001RegWrite(CNFG_CAL, 0x720000);
     delay(100);
     max30001RegWrite(CNFG_EMUX,0x0B0000);
     delay(100);
@@ -146,7 +144,7 @@ void MAX30001::max30001Begin()
     delay(100);
 }
 
-void MAX30001::max30001BeginRtorMode()
+void MAX30001::max30001BeginRtoRMode()
 {
     max30001SwReset();
     delay(100);
@@ -167,7 +165,7 @@ void MAX30001::max30001BeginRtorMode()
 }
 
 //not tested
-void MAX30001::max30001SetsamplingRate(uint16_t samplingRate)
+void MAX30001::max30001SetSamplingRate(uint16_t samplingRate)
 {
     uint8_t regBuff[4] = {0};
     max30001RegRead(CNFG_ECG, regBuff);
@@ -186,7 +184,7 @@ void MAX30001::max30001SetsamplingRate(uint16_t samplingRate)
             break;
 
         default :
-            Serial.println("Wrong samplingRate, please choose between 128, 256 or 512");
+            Serial.println("Invalid sampling rate, please choose between {128, 256, 512}.");
             break;
     }
 

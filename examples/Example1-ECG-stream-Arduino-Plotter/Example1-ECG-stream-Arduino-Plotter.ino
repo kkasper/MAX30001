@@ -2,14 +2,15 @@
 //
 //    Demo code for the MAX30001
 //
-//    This example plots the ECG through Arduino Plotter.
+//    This example plots live ECG data via the Arduino Plotter.
+//
 //
 //    Arduino connections:
 //
 //  |MAX30001 pin label| Pin Function         |Arduino Connection|
 //  |----------------- |:--------------------:|-----------------:|
-//  | MISO             | Slave Out            |  D12             |
-//  | MOSI             | Slave In             |  D11             |
+//  | POCI             | Peripheral Out       |  D12             |
+//  | PICO             | Peripheral In        |  D11             |
 //  | SCLK             | Serial Clock         |  D13             |
 //  | CS               | Chip Select          |  D7              |
 //  | VCC              | Digital VDD          |  +5V             |
@@ -32,41 +33,39 @@
 #include<SPI.h>
 #include "Max30001.h"
 
-MAX30001 max30001;
+MAX30001 myMAXChip;
 
 
 void setup()
 {
-    Serial.begin(57600); //Serial begin
-
-    pinMode(MAX30001_CS_PIN,OUTPUT);
-    digitalWrite(MAX30001_CS_PIN,HIGH); //disable device
+    Serial.begin(115200);
+    pinMode(MAX30001_CS_PIN, OUTPUT);
+    digitalWrite(MAX30001_CS_PIN, HIGH); // Disable SPI communication
 
     SPI.begin();
-    SPI.setBitOrder(MSBFIRST);
+    SPI.setBitOrder(MSBFIRST);          // See datasheet for SPI communication settings
     SPI.setDataMode(SPI_MODE0);
 
-    bool ret = max30001.max30001ReadInfo();
-    if(ret){
-      Serial.println("Max30001 read ID Success");
-    }else{
-
-      while(!ret){
-        //stay here untill the issue is fixed.
-        ret = max30001.max30001ReadInfo();
-        Serial.println("Failed to read ID, please make sure all the pins are connected");
+    bool ret = myMAXChip.max30001ReadInfo();
+    if(ret == true){
+      Serial.println("Max30001 read ID success.");
+    }
+    else{
+      while(ret == false){
+        // Stay here until the issue is fixed.
+        ret = myMAXChip.max30001ReadInfo();
+        Serial.println("Failed to read ID, please make sure all the pins are properly connected.");
         delay(10000);
       }
     }
-
-    Serial.println("Initialising the chip ...");
-    max30001.max30001Begin();   // initialize MAX30001
+    Serial.println("Running initialization...");
+    myMAXChip.max30001Begin();   // Run initialization
 }
 
 void loop()
 {
-    max30001.getEcgSamples();   //It reads the ecg sample and stores it to max30001.ecgdata .
+    myMAXChip.getEcgSamples();   // Read the ECG sample and store it to myMAXChip.ecgdata
 
-    Serial.println(max30001.ecgdata);
-    delay(8));
+    Serial.println(myMAXChip.ecgdata);
+    delay(8);
 }

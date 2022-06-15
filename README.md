@@ -17,10 +17,10 @@ The biopotential and bioimpedance channels have ESD protection, EMI filtering, i
 
 | MAX30001 pin label | MAX30001 pin number | Arduino Connection | Pin Function |
 | :---------------- | :---------------: | :---------------: | :---------------: |
-| SDO         		 | E03              | D12               |  Slave out        |             
-| SDI    		     | E04              | D11               |  Slave in         |
+| SDO         		 | E03              | D12               |  Peripheral out        |             
+| SDI    		     | E04              | D11               |  Peripheral in         |
 | SCK      		     | E05              | D13               |  Serial clock     |
-| CSB    		     | E06              | D07               |  Slave select |
+| CSB    		     | E06              | D07               |  Peripheral select |
 | FCLK     		  	 | D05              | --                |  External clock (32KHz) |
 | INT1      		 | D02              | D02               |  Interrupt        |
 | INT2       		 | E02              | --                |  Interrupt        |
