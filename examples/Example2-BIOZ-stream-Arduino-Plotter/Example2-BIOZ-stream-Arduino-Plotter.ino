@@ -75,7 +75,7 @@ void loop()
 {
     myMAXChip.getBioZSample();   // Read the BioZ FIFO and store ADC reading to myMAXChip.biozdata structure
     long raw_bioz_adc = myMAXChip.biozData.value;
-    double formatted_bioz_data = (raw_bioz_adc * 1) / (2^19 * cur_cg_mag * cur_bioz_gain); // Vref = 1V by default
+    double formatted_bioz_data = (raw_bioz_adc * 1) / (pow(2, 19) * cur_cg_mag * cur_bioz_gain); // Vref = 1V by default
 
     Serial.println(formatted_bioz_data);
     delay(8);
@@ -84,7 +84,7 @@ void loop()
 void printBioZSample()
 {
     long raw_bioz_adc = myMAXChip.biozData.value;
-    double formatted_bioz_data = (raw_bioz_adc * 1) / (2^19 * cur_cg_mag * cur_bioz_gain); // See datasheet for eq
+    double formatted_bioz_data = (raw_bioz_adc * 1) / (pow(2, 19) * cur_cg_mag * cur_bioz_gain); // See datasheet for eq
     Serial.print("BioZ reading (Ohm): ");
     Serial.println(formatted_bioz_data);
     Serial.print("BTAG[2:0]: ");

@@ -16,8 +16,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef Max30001.h
-#define Max30001.h
+#ifndef MAX30001_h
+#define MAX30001_h
 
 #include <Arduino.h>
 
@@ -72,7 +72,6 @@
 #define   PACE5_A         0x45
 #define   PACE5_B         0x46
 #define   PACE5_C         0x47
-#define   NO_OP           0x7F
 
 #define MAX30001_CS_PIN   7
 #define CLK_PIN           6
@@ -87,18 +86,18 @@ typedef enum
 
 
 
-typedef struct
+typedef struct ecg_data
 {
     signed long value;
     uint8_t e_tag;
     uint8_t p_tag;
-} struct ecg_data;
+} ecg_data;
 
-typedef struct
+typedef struct bioz_data
 {
     signed long value;
     uint8_t b_tag;
-} struct bioz_data;
+} bioz_data;
 
 class MAX30001
 {
@@ -114,12 +113,12 @@ class MAX30001
     void getHRandRR(void);
     void getEcgSample(void);
     void getBioZSample(void);
+    uint8_t max30001GetEcgGain(void);
+    uint8_t max30001GetBioZGain(void);
     bool max30001ReadInfo(void);
     void max30001SetSamplingRate(uint16_t samplingRate);
     void max30001RegRead(uint8_t Reg_address, uint8_t * buff);
     void max30001RegWrite (unsigned char WRITE_ADDRESS, unsigned long data);
-    uint8_t max30001GetEcgGain(void);
-    uint8_t max30001GetBioZGain(void);
 
   private:
     void max30001ReadData(int num_samples, uint8_t * readBuffer);

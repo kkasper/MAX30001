@@ -68,7 +68,7 @@ void loop()
 {
     myMAXChip.getEcgSample();   // Read the ECG FIFO store ADC reading to myMAXChip.ecgData structure
     long raw_ecg_adc = myMAXChip.ecgData.value;
-    double formatted_ecg_data = (raw_ecg_adc * 1000) / (2^17 * cur_ecg_gain);  // Vref = 1000 mV by default
+    double formatted_ecg_data = (raw_ecg_adc * 1000) / (pow(2, 17) * cur_ecg_gain);  // Vref = 1000 mV by default
 
     Serial.println(formatted_ecg_data);
     delay(8);
@@ -77,7 +77,7 @@ void loop()
 void printEcgSample()
 {
     long raw_ecg_adc = myMAXChip.ecgData.value;
-    double formatted_ecg_data = (raw_ecg_adc * 1000) / (2^17 * cur_ecg_gain);  // See datasheet for equation
+    double formatted_ecg_data = (raw_ecg_adc * 1000) / (pow(2, 17) * cur_ecg_gain);  // See datasheet for equation
     Serial.print("ECG reading (mV): ");
     Serial.println(formatted_ecg_data);
     Serial.print("ETAG[2:0]: ");

@@ -200,28 +200,28 @@ void MAX30001::max30001SetSamplingRate(uint16_t samplingRate)
     max30001RegWrite(CNFG_ECG, (cnfgEcg >> 8));
 }
 
-uint8_t max30001GetEcgGain(void)
+uint8_t MAX30001::max30001GetEcgGain(void)
 {
-    uint8_t regReadBuff[4];
-    uint8_t ecg_gains = {20, 40, 80, 160};
+    uint8_t regReadBuff[4] = {0};
+    uint8_t ecg_gains[] = {20, 40, 80, 160};
     uint8_t gain_idx = 0;
 
     max30001RegRead(CNFG_ECG, regReadBuff);
     gain_idx = regReadBuff[0] & 0x03;
 
-    return ecg_gains(gain_idx);
+    return ecg_gains[gain_idx];
 }
 
-uint8_t max30001GetBioZGain(void);
+uint8_t MAX30001::max30001GetBioZGain(void)
 {
     uint8_t regReadBuff[4];
-    uint8_t bioz_gains = {10, 20, 40, 80};
+    uint8_t bioz_gains[] = {10, 20, 40, 80};
     uint8_t gain_idx = 0;
 
     max30001RegRead(CNFG_BIOZ, regReadBuff);
     gain_idx = regReadBuff[0] & 0x03;
 
-    return bioz_gains(gain_idx);
+    return bioz_gains[gain_idx];
 }
 
 void MAX30001::getHRandRR(void)
@@ -243,7 +243,6 @@ void MAX30001::getHRandRR(void)
 
 void  MAX30001::getEcgSample(void)
 {
-    signed long ecg_reading;
     uint8_t regReadBuff[4];
     max30001RegRead(ECG_FIFO, regReadBuff);
 
